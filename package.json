@@ -7,9 +7,13 @@
   "type": "commonjs",
   "main": "main.js",
   "scripts": {
-    "test": "nodemon --experimental-specifier-resolution=node src/main.js -q"
+    "test": "nodemon --experimental-specifier-resolution=node dist/src/main.js -q"
   },
   "devDependencies": {
+    "@types/node": "^22.14.1",
     "nodemon": "^3.1.9"
+  },
+  "dependencies": {
+    "sharp": "^0.34.1"
   }
 }
