@@ -7,9 +7,10 @@ exports.imageToCpp = void 0;
 const sharp_1 = __importDefault(require("sharp"));
 const fs_1 = __importDefault(require("fs"));
 const path_1 = __importDefault(require("path"));
+const helpers_1 = require("../util/helpers");
 // Get paths from environment
 const HOST_PATH = process.env['IMG_FOLDER'] || './';
-const DIST_PATH = process.env['DIST_FOLDER'] || './';
+const DIST_PATH = process.env['DIST_FOLDER'] || (0, helpers_1.getImageDistFolder)();
 const IMG_NAME = process.env['IMG_FILE'];
 const imageToCpp = async (imageName) => {
     if (!imageName) {
@@ -22,25 +23,31 @@ const imageToCpp = async (imageName) => {
     // Format pixel data into a C++ array
     let cppArray = '';
     for (let i = 0; i < data.length; i++) {
-        cppArray += `${data[i]}, `;
-        if ((i + 1) % (channels * width) === 0)
-            cppArray += '\n';
+        cppArray += `${data[i]},`;
     }
-    const cppCode = `#ifndef IMAGE_DATA_H
-    #define IMAGE_DATA_H
+    const obj = (0, helpers_1.imageFileNameToHeader)(imageName);
+    const cppCode = `
+    #ifndef ${obj.header}
+    #define ${obj.header}
 
-    const int WIDTH = ${width};
-    const int HEIGHT = ${height};
-    const int CHANNELS = ${channels};
+    const int ${obj.var}WIDTH = ${width};
+    const int ${obj.var}HEIGHT = ${height};
+    const int ${obj.var}CHANNELS = ${channels};
 
-    const unsigned char imageData[] = {
+    const unsigned char ${obj.var}imageData[${width * height * channels}] = {
     ${cppArray}
     };
 
-    #endif // IMAGE_DATA_H
+    #endif // ${obj.header}
     `;
-    const outputPath = path_1.default.resolve(DIST_PATH, imageName.split('.')[0] + '.h');
+    const outputDir = path_1.default.resolve(DIST_PATH, 'Textures');
+    if (!fs_1.default.existsSync(outputDir)) {
+        fs_1.default.mkdirSync(outputDir);
+    }
+    const outputPath = path_1.default.resolve(outputDir, obj.name);
     fs_1.default.writeFileSync(outputPath, cppCode);
+    (0, helpers_1.imageNameArray)(outputDir, imageName);
+    (0, helpers_1.updateMainHeader)(outputDir);
     console.log(`✅ Header file saved to: ${outputPath}`);
 };
 exports.imageToCpp = imageToCpp;
@@ -51,3 +58,5 @@ exports.imageToCpp = imageToCpp;
     console.error('❌ Error:', err.message);
     process.exit(1);
 });
+//   C:\code\MyGame\MyGame\src
+//   C:\Users\shady\Downloads

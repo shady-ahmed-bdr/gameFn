@@ -1,10 +1,11 @@
 import sharp from "sharp";
 import fs from "fs";
 import path from "path";
+import { getImageDistFolder, imageFileNameToHeader, imageNameArray, updateMainHeader } from "../util/helpers";
 
 // Get paths from environment
 const HOST_PATH = process.env['IMG_FOLDER'] || './';
-const DIST_PATH = process.env['DIST_FOLDER'] || './';
+const DIST_PATH = process.env['DIST_FOLDER'] || getImageDistFolder();
 const IMG_NAME = process.env['IMG_FILE'];
 
 export const imageToCpp = async (imageName?: string): Promise<void> => {
@@ -18,24 +19,33 @@ export const imageToCpp = async (imageName?: string): Promise<void> => {
     // Format pixel data into a C++ array
     let cppArray = '';
     for (let i = 0; i < data.length; i++) {
-        cppArray += `${data[i]}, `;
-        if ((i + 1) % (channels * width) === 0) cppArray += '\n';
+        cppArray+=`${data[i]},`;
     }
-    const cppCode = `#ifndef IMAGE_DATA_H
-    #define IMAGE_DATA_H
+    const obj = imageFileNameToHeader(imageName)
+    const cppCode = `
+    #ifndef ${obj.header}
+    #define ${obj.header}
 
-    const int WIDTH = ${width};
-    const int HEIGHT = ${height};
-    const int CHANNELS = ${channels};
+    const int ${obj.var}WIDTH = ${width};
+    const int ${obj.var}HEIGHT = ${height};
+    const int ${obj.var}CHANNELS = ${channels};
 
-    const unsigned char imageData[] = {
+    const unsigned char ${obj.var}imageData[${width*height * channels}] = {
     ${cppArray}
     };
 
-    #endif // IMAGE_DATA_H
+    #endif // ${obj.header}
     `;
-    const outputPath = path.resolve(DIST_PATH, imageName.split('.')[0] + '.h');
+    const outputDir =  path.resolve(DIST_PATH,'Textures');
+    
+    if(!fs.existsSync(outputDir)){
+        fs.mkdirSync(outputDir);    
+    }
+
+    const outputPath = path.resolve(outputDir, obj.name);
     fs.writeFileSync(outputPath, cppCode);
+    imageNameArray(outputDir,imageName)
+    updateMainHeader(outputDir)
     console.log(`✅ Header file saved to: ${outputPath}`);
 };
 
@@ -46,3 +56,5 @@ imageToCpp(IMG_NAME).then(() => {
     console.error('❌ Error:', err.message);
     process.exit(1);
 });
+//   C:\code\MyGame\MyGame\src
+//   C:\Users\shady\Downloads

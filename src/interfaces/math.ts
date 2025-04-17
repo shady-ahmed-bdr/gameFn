@@ -16,3 +16,9 @@ export interface Cord {
   y:number;
   [key: string]: number;
 }
+export interface DataJosnImageList{
+  list:string[];
+  size:number;
+  headerFIleName:string;
+  distination:string;
+}

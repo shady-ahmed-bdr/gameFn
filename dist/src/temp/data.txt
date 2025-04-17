@@ -1,0 +1,1 @@
+{"list":["Capture.PNG","header_img.png","ss.jpg","ss.jpg","pexels-chevanon-325044.jpg","kk.jpg","k4k.jpg","ss.jpg","ss.jpg","ss.jpg","ss.jpg","ss.jpg","ss.jpg","ss.jpg","ss.jpg","ss.jpg","ss.jpg","ss.jpg","ss.jpg","k4k.jpg","kk.jpg","kk.jpg","ww.webp","ww.webp","ff.jpg"],"size":25,"headerFIleName":"all_images.h","distination":"C:\\code\\MyGame\\MyGame\\src\\Textures"}

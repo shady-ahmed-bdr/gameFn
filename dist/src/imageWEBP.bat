@@ -15,7 +15,7 @@ if not exist "%IMG_FOLDER%" (
 echo.
 echo Available PNG files:
 set i=0
-for %%f in ("%IMG_FOLDER%\*.png") do (
+for %%f in ("%IMG_FOLDER%\*.webp") do (
     set /a i+=1
     set "file[!i!]=%%~nxf"
     echo !i!. %%~nxf
@@ -36,14 +36,8 @@ set "IMG_FILE=!file[%choice%]!"
 
 :: Step 3: Ask for destination folder
 echo.
-set /p DIST_FOLDER=Enter the destination folder path:
+set /p DIST_FOLDER=Enter the destination src folder path:
 
-:: Validate destination exists
-if not exist "%DIST_FOLDER%" (
-    echo Destination folder does not exist.
-    pause
-    exit /b
-)
 
 :: Set environment variables for Node.js
 set "IMG_FOLDER=%IMG_FOLDER%"
@@ -53,6 +47,6 @@ set "IMG_FILE=%IMG_FILE%"
 :: Step 4: Run Node.js
 echo.
 echo Running node main.js...
-node app/image.js
+node --max-old-space-size=4096 app/image.js
 
 pause
